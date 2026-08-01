@@ -1,6 +1,34 @@
-import { Badge, Text } from '@particle-academy/react-fancy';
+import { Badge, ContentRenderer, Text } from '@particle-academy/react-fancy';
 import { useEffect, useRef } from 'react';
 import type { ChatEntry } from '../types';
+
+/**
+ * Prose styling for rendered agent output.
+ *
+ * Written as arbitrary variants rather than a stylesheet so the package ships
+ * no CSS of its own — a host that already scans this package with Tailwind gets
+ * the styling for free, with nothing to import and nothing to override.
+ */
+const PROSE = [
+    '[&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
+    '[&_strong]:font-semibold',
+    '[&_em]:italic',
+    '[&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5',
+    '[&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5',
+    '[&_li]:my-0.5',
+    '[&_h1]:text-base [&_h2]:text-base [&_h3]:text-sm',
+    '[&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold',
+    '[&_h1]:mt-2 [&_h2]:mt-2 [&_h3]:mt-2 [&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0',
+    '[&_code]:rounded [&_code]:bg-black/5 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.85em]',
+    '[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-black/5 [&_pre]:p-2',
+    '[&_pre_code]:bg-transparent [&_pre_code]:p-0',
+    '[&_a]:underline [&_a]:underline-offset-2',
+    '[&_blockquote]:border-l-2 [&_blockquote]:border-secondary-300 [&_blockquote]:pl-3 [&_blockquote]:italic',
+    '[&_table]:my-2 [&_table]:w-full [&_table]:text-left',
+    '[&_th]:border-b [&_th]:border-secondary-300 [&_th]:pr-3 [&_th]:font-medium',
+    '[&_td]:border-b [&_td]:border-secondary-200 [&_td]:pr-3 [&_td]:align-top',
+    '[&_hr]:my-2 [&_hr]:border-secondary-300',
+].join(' ');
 
 export interface ChatTranscriptProps {
     history: ChatEntry[];
@@ -69,17 +97,30 @@ export function ChatTranscript({ history, agentName, thinking, emptyState }: Cha
 
 function Bubble({ entry, agentName }: { entry: ChatEntry; agentName: string }) {
     const mine = entry.role === 'user';
+    const body = entry.display || entry.content || '';
 
     return (
         <div className={`flex gap-3 ${mine ? 'flex-row-reverse' : ''}`}>
             <Who label={mine ? 'You' : agentName} />
             <div className={`max-w-[46rem] ${mine ? 'text-right' : ''}`}>
                 <div
-                    className={`inline-block rounded-lg px-3 py-2 text-left whitespace-pre-wrap break-words text-sm ${
-                        mine ? 'bg-brand text-white' : 'bg-secondary-100 text-secondary-900'
+                    className={`inline-block rounded-lg px-3 py-2 text-left break-words text-sm ${
+                        mine
+                            ? 'bg-brand text-white whitespace-pre-wrap'
+                            : 'bg-secondary-100 text-secondary-900'
                     }`}
                 >
-                    {entry.display || entry.content}
+                    {mine ? (
+                        // The teacher's own words, verbatim. Rendering these as
+                        // markdown would silently reformat what they typed.
+                        body
+                    ) : (
+                        // Model output is markdown, and it is not trusted input —
+                        // it can carry whatever an uploaded file talked it into
+                        // writing. ContentRenderer sanitizes by default; never
+                        // pass `unsafe` here.
+                        <ContentRenderer value={body} format="markdown" className={PROSE} />
+                    )}
                 </div>
                 {entry.files && entry.files.length > 0 && (
                     <div className={`mt-1.5 flex flex-wrap gap-1.5 ${mine ? 'justify-end' : ''}`}>
