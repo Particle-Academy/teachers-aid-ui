@@ -15,6 +15,8 @@ export interface PlanReviewProps {
     busy?: boolean;
     /** Shown in the footer. Set to null to drop the note entirely. */
     draftNote?: React.ReactNode;
+    /** react-fancy Button colour for the apply action. */
+    color?: Color;
 }
 
 /**
@@ -24,7 +26,7 @@ export interface PlanReviewProps {
  * included. A reviewer who cannot see what they are approving is not really
  * approving it, and "Apply" on an opaque list is just a slower yes.
  */
-export function PlanReview({ plan, onApply, onDiscard, busy, draftNote }: PlanReviewProps) {
+export function PlanReview({ plan, onApply, onDiscard, busy, draftNote, color = 'red' }: PlanReviewProps) {
     const [expanded, setExpanded] = useState<number | null>(null);
 
     if (!plan || !plan.operations?.length) return null;
@@ -52,9 +54,12 @@ export function PlanReview({ plan, onApply, onDiscard, busy, draftNote }: PlanRe
                     </Button>
                     <Button
                         onClick={onApply}
+                        // See MessageComposer: colour is a prop, never a forced
+                        // `!bg-brand` class the host may not define.
+                        color={color}
                         loading={busy}
                         disabled={busy}
-                        className="!bg-brand hover:!bg-primary-600 !text-white !font-semibold !text-sm !px-4 !py-1.5 !rounded-md"
+                        className="!font-semibold !text-sm"
                     >
                         Apply {plan.count} change{plan.count === 1 ? '' : 's'}
                     </Button>

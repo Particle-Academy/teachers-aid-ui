@@ -1,4 +1,4 @@
-import { Text } from '@particle-academy/react-fancy';
+import { Text, type Color } from '@particle-academy/react-fancy';
 import { ChatTranscript } from './ChatTranscript';
 import { MessageComposer } from './MessageComposer';
 import { PlanReview } from './PlanReview';
@@ -25,6 +25,8 @@ export interface TeachersAidChatProps {
     banner?: React.ReactNode;
     description?: React.ReactNode;
     className?: string;
+    /** react-fancy colour for the primary actions (send, apply). */
+    color?: Color;
 }
 
 /**
@@ -48,6 +50,7 @@ export function TeachersAidChat({
     banner,
     description,
     className,
+    color = 'red',
 }: TeachersAidChatProps) {
     const transcript = pending ? [...history, pending] : history;
 
@@ -57,7 +60,7 @@ export function TeachersAidChat({
 
             {banner}
 
-            <PlanReview plan={plan} busy={busy} onApply={onApply} onDiscard={onDiscard} />
+            <PlanReview plan={plan} busy={busy} onApply={onApply} onDiscard={onDiscard} color={color} />
 
             <div className="flex min-h-[28rem] flex-col overflow-hidden rounded-lg border border-secondary-200 bg-white">
                 <div className="flex items-center justify-between border-b border-secondary-200 px-4 py-2">
@@ -87,6 +90,7 @@ export function TeachersAidChat({
                     agentName={agentName}
                     disabled={busy || !configured}
                     busy={busy}
+                    color={color}
                 />
             </div>
         </div>

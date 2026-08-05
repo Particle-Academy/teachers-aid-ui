@@ -1,4 +1,4 @@
-import { Badge, Button, Text } from '@particle-academy/react-fancy';
+import { Badge, Button, Text, type Color } from '@particle-academy/react-fancy';
 import { useRef, useState } from 'react';
 
 const ACCEPT = '.pdf,.png,.jpg,.jpeg,.gif,.webp,.docx,.xlsx,.csv,.txt,.pptx';
@@ -13,6 +13,8 @@ export interface MessageComposerProps {
     accept?: string;
     maxFiles?: number;
     hint?: React.ReactNode;
+    /** react-fancy Button colour for the send action. */
+    color?: Color;
 }
 
 /**
@@ -35,6 +37,7 @@ export function MessageComposer({
     accept = ACCEPT,
     maxFiles = 10,
     hint,
+    color = 'red',
 }: MessageComposerProps) {
     const [message, setMessage] = useState('');
     const [files, setFiles] = useState<File[]>([]);
@@ -140,12 +143,17 @@ export function MessageComposer({
 
                 <Button
                     type="submit"
+                    // Colour comes from the PROP, not a forced `!bg-brand`
+                    // class. That token is defined by some hosts and not
+                    // others, so forcing it renders an unstyled grey slab
+                    // wherever it is absent — with no error to trace.
+                    color={color}
                     // Only `busy`, never `disabled` — the box is also disabled
                     // when no model is configured, and a permanent spinner reads
                     // as "working" when nothing is happening at all.
                     loading={busy}
                     disabled={disabled || message.trim() === ''}
-                    className="!bg-brand hover:!bg-primary-600 !text-white !font-semibold !px-4 !py-2 !rounded-md disabled:!opacity-60"
+                    className="!font-semibold"
                 >
                     Send
                 </Button>
