@@ -62,7 +62,7 @@ export function TeachersAidChat({
 
             <PlanReview plan={plan} busy={busy} onApply={onApply} onDiscard={onDiscard} color={color} />
 
-            <div className="flex min-h-[28rem] flex-col overflow-hidden rounded-lg border border-secondary-200 bg-white">
+            <div className="flex min-h-[28rem] flex-col overflow-hidden rounded-lg border border-secondary-200 bg-white dark:bg-zinc-900">
                 <div className="flex items-center justify-between border-b border-secondary-200 px-4 py-2">
                     <Text className="!text-xs !font-semibold !uppercase !tracking-wide !text-secondary-500">
                         Conversation

@@ -48,7 +48,7 @@ export function PlanReview({ plan, onApply, onDiscard, busy, draftNote, color = 
                     <Button
                         onClick={onDiscard}
                         disabled={busy}
-                        className="!border !border-secondary-300 !bg-white !text-secondary-700 !text-sm !px-3 !py-1.5 !rounded-md"
+                        className="!border !border-secondary-300 !bg-white dark:!bg-zinc-900 !text-secondary-700 !text-sm !px-3 !py-1.5 !rounded-md"
                     >
                         Discard
                     </Button>
@@ -96,7 +96,7 @@ export function PlanReview({ plan, onApply, onDiscard, busy, draftNote, color = 
                             </button>
 
                             {open && (
-                                <dl className="mt-3 grid gap-2 rounded-md bg-white/70 p-3 text-sm">
+                                <dl className="mt-3 grid gap-2 rounded-md bg-white/70 dark:bg-zinc-900/70 p-3 text-sm">
                                     {attributes.map(([key, value]) => (
                                         <div key={key} className="grid sm:grid-cols-[10rem_1fr] gap-1 sm:gap-3">
                                             <dt className="text-xs font-medium uppercase tracking-wide text-secondary-500">

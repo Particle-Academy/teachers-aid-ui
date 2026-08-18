@@ -10,6 +10,28 @@ upgrading.
 
 ## [Unreleased]
 
+## 0.2.1 — 2026-08-18
+
+### Fixed
+
+- **Dark mode: five surfaces were pinned to a light-only colour.** Most of this
+  package already used the kit's `secondary-*` scale, which react-fancy flips
+  under `.dark` — so those parts were right all along. The exceptions were
+  literals with no dark counterpart, which stayed put while the text over them
+  correctly went near-white:
+
+  - the message composer's drop zone and its dragging state (`MessageComposer`)
+  - the chat panel shell (`TeachersAidChat`)
+  - the Discard button and the attribute list (`PlanReview`)
+  - inline `code` and `pre` tints in rendered markdown (`ChatTranscript`), where
+    a 5%-black wash is invisible on a dark surface
+
+  **Nothing to do on upgrade.** Light mode is unchanged; each of these now
+  carries an explicit `dark:` counterpart.
+
+  A `dark-mode` test now scans source for colour literals with no dark
+  counterpart, so this cannot come back silently.
+
 ## 0.2.0 — 2026-08-07
 
 ### Changed

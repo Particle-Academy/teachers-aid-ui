@@ -90,7 +90,7 @@ export function MessageComposer({
                 addFiles(e.dataTransfer.files);
             }}
             className={`border-t px-4 py-3 transition ${
-                dragging ? 'border-brand bg-primary-50' : 'border-secondary-200 bg-white'
+                dragging ? 'border-brand bg-primary-50 dark:bg-primary-950' : 'border-secondary-200 bg-white dark:bg-zinc-900'
             }`}
         >
             {files.length > 0 && (
