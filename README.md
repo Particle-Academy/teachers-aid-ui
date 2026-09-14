@@ -1,5 +1,7 @@
 # @particle-academy/teachers-aid-ui
 
+[![Fancified](art/fancified.svg)](https://particle.academy)
+
 Teachers Aid Chat UX — an authoring chat with file drop and a **propose-then-approve** plan review, built on [Fancy UI](https://github.com/Particle-Academy/react-fancy) primitives.
 
 The React half of [`particle-academy/teachers-aid`](https://github.com/Particle-Academy/teachers-aid). Every component is **controlled and transport-agnostic**: it takes data and callbacks and imports no router or HTTP client, so the same surface sits on Inertia, a `fetch` call or a websocket.
