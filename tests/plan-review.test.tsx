@@ -179,3 +179,132 @@ describe("PlanReview — what it does NOT do", () => {
         expect(text.toLowerCase()).toContain("delete");
     });
 });
+
+describe("PlanReview — a reviewer can see the attribute that matters", () => {
+    /*
+     * These exist because a consumer asked a question the component could not
+     * answer well: does the review show a test's `passing_score`, or only its
+     * title and description?
+     *
+     * It showed every attribute -- behind a click, one operation at a time, with
+     * Apply available from the start. So an admin could approve
+     * "Radio Discipline Check -- a quiz on callsigns" without seeing
+     * `passing_score: 0`, the single field deciding whether that certification
+     * exam means anything.
+     *
+     * It matters because the proposal comes from a model and Teachers Aid extracts
+     * uploaded course material into the turn. `passing_score` is a legitimate,
+     * model-controlled field, so nothing is bypassed when an injected instruction
+     * proposes zero -- the tool is working as designed and THE REVIEW IS THE
+     * CONTROL. A control behind a click nobody is prompted to make is not one.
+     */
+    const examPlan = (): ChangePlan => ({
+        operations: [
+            {
+                action: "create",
+                entity: "test",
+                description: "Radio Discipline Check — a quiz on callsigns",
+                attributes: {
+                    title: "Radio Discipline Check",
+                    passing_score: 0,
+                    is_final: true,
+                    max_attempts: 99,
+                },
+            },
+        ],
+        count: 1,
+    });
+
+    it("shows passing_score WITHOUT the reviewer expanding anything", () => {
+        // The load-bearing one. If this ever fails, an admin can approve a final
+        // exam with a zero pass mark having never been shown it.
+        const host = mount(<PlanReview plan={examPlan()} onApply={() => {}} onDiscard={() => {}} />);
+
+        expect(host.textContent).toContain("passing_score");
+        expect(host.textContent).toContain("0");
+    });
+
+    it("shows the other consequential scalars inline too", () => {
+        const host = mount(<PlanReview plan={examPlan()} onApply={() => {}} onDiscard={() => {}} />);
+
+        expect(host.textContent).toContain("is_final");
+        expect(host.textContent).toContain("max_attempts");
+        expect(host.textContent).toContain("99");
+    });
+
+    it("renders fields for EVERY operation at once, not one at a time", () => {
+        // The accordion let only one row be open. Reviewing a twelve-operation
+        // plan was twelve clicks with no way to compare two rows, which is its own
+        // quiet pressure to stop looking and click Apply.
+        const host = mount(
+            <PlanReview
+                plan={{
+                    operations: [
+                        { action: "create", entity: "test", description: "First", attributes: { passing_score: 10 } },
+                        { action: "create", entity: "test", description: "Second", attributes: { passing_score: 20 } },
+                    ],
+                    count: 2,
+                }}
+                onApply={() => {}}
+                onDiscard={() => {}}
+            />,
+        );
+
+        expect(host.textContent).toContain("10");
+        expect(host.textContent).toContain("20");
+    });
+
+    it("keeps long values and objects behind the toggle, and says how many", () => {
+        // Inline is for what can be read at a glance. A 600-character description
+        // inline would bury the pass mark it was meant to reveal.
+        const long = "x".repeat(600);
+        const host = mount(
+            <PlanReview
+                plan={{
+                    operations: [
+                        {
+                            action: "create",
+                            entity: "test",
+                            description: "Long one",
+                            attributes: { passing_score: 70, body: long, meta: { a: 1 } },
+                        },
+                    ],
+                    count: 1,
+                }}
+                onApply={() => {}}
+                onDiscard={() => {}}
+            />,
+        );
+
+        expect(host.textContent).toContain("passing_score");
+        expect(host.textContent).not.toContain(long);
+        expect(host.textContent).toContain("2 more fields");
+
+        click(host.querySelector("button[aria-expanded]"));
+
+        expect(host.textContent).toContain(long);
+    });
+
+    it("two open rows stay open", () => {
+        const host = mount(
+            <PlanReview
+                plan={{
+                    operations: [
+                        { action: "create", entity: "test", description: "A", attributes: { body: "y".repeat(100) } },
+                        { action: "create", entity: "test", description: "B", attributes: { body: "z".repeat(100) } },
+                    ],
+                    count: 2,
+                }}
+                onApply={() => {}}
+                onDiscard={() => {}}
+            />,
+        );
+
+        const toggles = host.querySelectorAll("button[aria-expanded]");
+        click(toggles[0]);
+        click(toggles[1]);
+
+        expect(host.textContent).toContain("y".repeat(100));
+        expect(host.textContent).toContain("z".repeat(100));
+    });
+});

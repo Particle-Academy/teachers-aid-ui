@@ -10,6 +10,51 @@ upgrading.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-02
+
+### Fixed
+
+- **`PlanReview` hid the attribute the review exists to check.** Scalar attributes
+  now render inline on every operation, without expanding anything.
+
+  Attributes *were* all rendered — behind a click, one operation at a time, with
+  Apply available from the start. So a reviewer saw
+  *"Radio Discipline Check — a quiz on callsigns · 5 fields"* and could approve it
+  having never seen `passing_score: 0`, the single field deciding whether that
+  certification exam means anything.
+
+  It matters because the proposal comes from a model and Teachers Aid extracts
+  uploaded course material into the turn. `passing_score` is a legitimate,
+  model-controlled field — nothing is bypassed when an injected instruction proposes
+  zero. The tool is working as designed and **the review IS the control.** A control
+  behind a click nobody is prompted to make is not one.
+
+  The component's own docblock already said *"Apply on an opaque list is just a
+  slower yes"*. It was true of the intent and false of the behaviour.
+
+  **What you must DO:** nothing. Rows are taller. Long strings and nested objects
+  stay behind the toggle, which now reads "N more fields".
+
+- **Several operations can be expanded at once.** It was a single-index accordion,
+  so reviewing a twelve-operation plan was twelve clicks with no way to compare two
+  rows — its own quiet pressure to stop looking and click Apply.
+
+### Changed
+
+- `AGENTS.md` no longer claims `PlanReview` offers **"per-operation
+  accept/reject"**. It does not, and never did: one of the existing tests asserts
+  the opposite ("applies the whole plan or none of it"). It also no longer says
+  "No suite yet" with 18 tests in the repo.
+
+  Both corrected together because they are the same defect, and this estate was
+  bitten by its bigger version the same day: `laravel-jobs`' agent file described an
+  authentication bypass as a deliberate feature for two releases.
+
+Raised by a consumer who went looking for a mass-assignment hole in the PHP side,
+did not find one, and asked the better question — what can an admin actually see at
+the moment they commit?
+
+
 ### Fixed
 
 - **`CHANGELOG.md` is now in the published tarball.** `files` did not whitelist it, so npm never shipped it — and this package puts breaking changes in MINOR releases and tells you in the README to read the entry before taking one. The instruction existed for the author, who has the file, and not for the consumer, who is the only one being instructed. Nothing for you to do; the file simply arrives from this release on.

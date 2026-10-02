@@ -11,7 +11,7 @@ Chat with it about course material; review and approve what it proposes.
 | `TeachersAidChat` | the whole thing — transcript + composer + plan review |
 | `ChatTranscript` | the conversation |
 | `MessageComposer` | input with file drop (handbooks, decks, question banks) |
-| `PlanReview` | the proposed `ChangePlan`, per-operation accept/reject |
+| `PlanReview` | the proposed `ChangePlan` — whole-plan apply or discard |
 
 ## Rules
 
@@ -42,9 +42,28 @@ than none.
 
 ## Testing
 
-No suite yet. Highest-value first test: that `PlanReview` cannot emit an apply
-for an operation the user rejected — the one bug in this package that would
-matter.
+`npm test` -> vitest, 18 tests across `plan-review.test.tsx` and
+`dark-mode.test.ts`. **DOM tests need `// @vitest-environment jsdom` at the top
+of the file** -- there is no `vitest.config.*` here, so the default environment is
+`node` and a render test without that pragma fails on `document` rather than on
+its assertion. `Element.prototype.scrollIntoView` also needs stubbing, because
+jsdom implements no scrolling and `ChatTranscript` scrolls to the newest turn.
+
+> This section read **"No suite yet"**, and the table above promised
+> **"per-operation accept/reject"**. Both were false: there were 18 tests, and one
+> of them asserts the *opposite* of that promise -- "applies the whole plan or none
+> of it: there is no per-operation reject".
+>
+> The second one is the dangerous shape, and this estate has just been bitten by
+> it twice. `laravel-jobs`' own agent file called an authentication bypass a
+> deliberate feature for two releases, and every agent who read it believed it. A
+> doc describing a capability that does not exist is worse than a missing doc,
+> because the reader stops looking.
+
+**The highest-value test that still does not exist:** nothing asserts the surface
+cannot apply a plan the host has not been given a chance to see -- i.e. that
+`onApply` is unreachable without a render. The current suite covers "does not
+apply on render" and "cannot apply twice", which is adjacent but not that.
 
 ## Publishing
 
