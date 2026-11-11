@@ -10,6 +10,13 @@ upgrading.
 
 ## [Unreleased]
 
+### Changed
+
+- **Releases need a lab-run certificate.** `publish.yml` gains a read-only
+  `lab-certificate` job that every publishing job needs: a tag is published only
+  when the fancy-labs lab has certified that exact version and commit. Consumers
+  do nothing; this changes how releases are cut, not what the package does.
+
 ### Security
 
 - `source-map-js` is pinned forward to `^1.2.2` via `overrides`. Versions up to
@@ -66,7 +73,6 @@ Raised by a consumer who went looking for a mass-assignment hole in the PHP side
 did not find one, and asked the better question — what can an admin actually see at
 the moment they commit?
 
-
 ### Fixed
 
 - **`CHANGELOG.md` is now in the published tarball.** `files` did not whitelist it, so npm never shipped it — and this package puts breaking changes in MINOR releases and tells you in the README to read the entry before taking one. The instruction existed for the author, who has the file, and not for the consumer, who is the only one being instructed. Nothing for you to do; the file simply arrives from this release on.
@@ -110,7 +116,6 @@ the moment they commit?
 ### Why
 
 These are the kit 0.5 platform floors, applied across every package at once so a consumer never has to resolve a mix. **No API changed, nothing was removed, nothing was renamed** — only what the package requires.
-
 
 ### Fixed
 
