@@ -141,6 +141,23 @@ describe("ChatTranscript", () => {
     it("renders an empty transcript without throwing", () => {
         expect(() => mount(<ChatTranscript agentName="Aide" history={[]} />)).not.toThrow();
     });
+
+    it("paints the teacher's bubble with colours that exist without a host theme", () => {
+        // `bg-brand` is a utility only a host whose OWN Tailwind build declares
+        // the brand token generates. The kit lab's host (the starter kit's
+        // stylesheet) does not, so the bubble rendered white text on the page
+        // background: axe color-contrast, 1.04:1 (lab run 601, K36). The colour
+        // must come from the brand token WITH a literal fallback, so the
+        // utility exists wherever this package's classes are scanned.
+        const host = mount(<ChatTranscript agentName="Aide" history={[entry({ content: "Make a quiz" })]} />);
+        const bubble = [...host.querySelectorAll("div")].find((d) => d.textContent === "Make a quiz" && d.children.length === 0)!;
+        const classes = bubble.className.split(/\s+/);
+
+        expect(classes).not.toContain("bg-brand");
+        expect(classes).not.toContain("text-white");
+        expect(classes).toContain("bg-[color:var(--color-brand,var(--color-violet-600))]");
+        expect(classes).toContain("text-[color:var(--color-brand-contrast,var(--color-white))]");
+    });
 });
 
 describe("PlanReview — what it does NOT do", () => {

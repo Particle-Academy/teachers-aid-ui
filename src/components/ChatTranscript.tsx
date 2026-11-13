@@ -106,7 +106,11 @@ function Bubble({ entry, agentName }: { entry: ChatEntry; agentName: string }) {
                 <div
                     className={`inline-block rounded-lg px-3 py-2 text-left break-words text-sm ${
                         mine
-                            ? 'bg-brand text-white whitespace-pre-wrap'
+                            ? // The brand token WITH a literal fallback: a bare
+                              // `bg-brand` exists only in hosts whose own Tailwind
+                              // build declares the token, and elsewhere left white
+                              // text on the page background (1.04:1).
+                              'bg-[color:var(--color-brand,var(--color-violet-600))] text-[color:var(--color-brand-contrast,var(--color-white))] whitespace-pre-wrap'
                             : 'bg-secondary-100 text-secondary-900'
                     }`}
                 >

@@ -10,6 +10,18 @@ upgrading.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`ChatTranscript`: the teacher's own messages were unreadable in hosts without
+  a `brand` utility.** The bubble used `bg-brand text-white`, and `bg-brand` is
+  generated only by a host whose own Tailwind build declares the brand token.
+  In the kit lab's host it was not, so white text sat on the page background at
+  1.04:1 (axe `color-contrast`, lab run 601, K36). The bubble now paints with the
+  brand token and a literal fallback
+  (`var(--color-brand, var(--color-violet-600))` on
+  `var(--color-brand-contrast, white)`), which resolves in every host. Nothing
+  to do on upgrade: a host that sets `--color-brand` still gets its colour.
+
 ### Changed
 
 - **Releases need a lab-run certificate.** `publish.yml` gains a read-only
