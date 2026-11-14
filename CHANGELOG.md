@@ -10,6 +10,15 @@ upgrading.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-13
+
+### Changed
+
+- **Releases need a lab-run certificate.** `publish.yml` gains a read-only
+  `lab-certificate` job that every publishing job needs: a tag is published only
+  when the fancy-labs lab has certified that exact version and commit. Consumers
+  do nothing; this changes how releases are cut, not what the package does.
+
 ### Fixed
 
 - **`ChatTranscript`: the teacher's own messages were unreadable in hosts without
@@ -21,13 +30,6 @@ upgrading.
   (`var(--color-brand, var(--color-violet-600))` on
   `var(--color-brand-contrast, white)`), which resolves in every host. Nothing
   to do on upgrade: a host that sets `--color-brand` still gets its colour.
-
-### Changed
-
-- **Releases need a lab-run certificate.** `publish.yml` gains a read-only
-  `lab-certificate` job that every publishing job needs: a tag is published only
-  when the fancy-labs lab has certified that exact version and commit. Consumers
-  do nothing; this changes how releases are cut, not what the package does.
 
 ### Security
 
