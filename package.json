@@ -1,7 +1,7 @@
 {
     "name": "@particle-academy/teachers-aid-ui",
     "version": "0.3.1",
-    "description": "Teachers Aid Chat UX — an authoring chat with file drop and a propose-then-approve plan review, built on Fancy UI primitives.",
+    "description": "Teachers Aid Chat UX — an authoring chat with file drop and a propose-then-approve plan review, built on Fancy Dev Kit primitives.",
     "keywords": [
         "ai",
         "agent",
