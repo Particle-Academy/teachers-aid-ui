@@ -1,77 +1,64 @@
-# AGENTS.md — @particle-academy/teachers-aid-ui
+# Using @particle-academy/teachers-aid-ui — guide for agents
 
-The React surface for `particle-academy/teachers-aid` — the TAC authoring agent.
-Chat with it about course material; review and approve what it proposes.
-`CLAUDE.md` symlinks here.
+How an agent installs and uses this package in a consumer app. What the package
+is, is in [README.md](./README.md). Notes for working ON this repo's code are in
+[CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## The surface
+## Install
 
-| Component | Renders |
-|---|---|
-| `TeachersAidChat` | the whole thing — transcript + composer + plan review |
-| `ChatTranscript` | the conversation |
-| `MessageComposer` | input with file drop (handbooks, decks, question banks) |
-| `PlanReview` | the proposed `ChangePlan` — whole-plan apply or discard |
+```bash
+npm install @particle-academy/teachers-aid-ui
+```
 
-## Rules
+- **Peers:** `@particle-academy/react-fancy` `>=4`, `react ^19`,
+  `react-dom ^19`. **Node:** `>=22`.
+- **Tailwind v4 must scan the package**, or it emits none of its classes:
 
-- **`PlanReview` is the trust boundary made visible.** The backend guarantees an
-  agent cannot write — tools hold no repository, and `PlanApplier` is the only
-  writer. This component is where a human turns a *proposal* into a change.
-  **Never auto-apply a plan**, and never collapse the review step for
-  "convenience". Trust-but-verify is the Fancy component contract's sixth
-  requirement, and here it is the entire product.
-- **Agent output is sanitised by default.** It renders through `ContentRenderer`
-  because the reply is model output and an uploaded file can talk a model into
-  emitting markup. Do not switch to raw HTML rendering.
-- **Transport-agnostic on purpose.** No router, no HTTP client — so it runs under
-  Inertia, `fetch`, or a websocket. Keep it that way: the host supplies the
-  transport, the component supplies the surface.
-- **Controlled, per the Fancy component contract.** `value` + `onChange`, stable
-  `data-*` handles, JSON-friendly props.
-- **Peer, not dependency, on `react-fancy`** (`>=4 <5` — bounded).
+  ```css
+  @source "../../node_modules/@particle-academy/teachers-aid-ui/dist";
+  ```
 
-## Rule for whoever wires the backend
+- The backend is the Composer package `particle-academy/teachers-aid`, though
+  any backend that serves the same JSON works.
 
-`PlanApplier` writes through Eloquent and does **not** consult
-`laravel-courses`' `AuthorizesCourseAdmin`. That is correct layering, not a hole
-— but it means **the route that invokes the applier is where authorization
-lives.** Put it behind admin middleware. Don't fake a `Request` to make the
-applier check a contract; a check that looks like enforcement but isn't is worse
-than none.
+## Find it on the Fancy MCP server
 
-## Testing
+The catalog server is `https://ui.particle.academy/mcp` (streamable HTTP, no API
+key; MCP id `fancy-ui`). This package's registry entries (`package` =
+`teachers-aid-ui`):
 
-`npm test` -> vitest, 18 tests across `plan-review.test.tsx` and
-`dark-mode.test.ts`. **DOM tests need `// @vitest-environment jsdom` at the top
-of the file** -- there is no `vitest.config.*` here, so the default environment is
-`node` and a render test without that pragma fails on `document` rather than on
-its assertion. `Element.prototype.scrollIntoView` also needs stubbing, because
-jsdom implements no scrolling and `ChatTranscript` scrolls to the newest turn.
+- `teachers-aid-chat`, `chat-transcript`, `message-composer`, `plan-review`
 
-> This section read **"No suite yet"**, and the table above promised
-> **"per-operation accept/reject"**. Both were false: there were 18 tests, and one
-> of them asserts the *opposite* of that promise -- "applies the whole plan or none
-> of it: there is no per-operation reject".
->
-> The second one is the dangerous shape, and this estate has just been bitten by
-> it twice. `laravel-jobs`' own agent file called an authentication bypass a
-> deliberate feature for two releases, and every agent who read it believed it. A
-> doc describing a capability that does not exist is worse than a missing doc,
-> because the reader stops looking.
+Use `search-components` ("authoring chat", "plan review") to find them,
+`install-instructions` for the exact commands, and `get-component` for the
+source bundle. Vendored source: `npx fancy-cli@latest add <slug>`. The backend
+is found with `search-backend-packages` (stack `php`).
 
-**The highest-value test that still does not exist:** nothing asserts the surface
-cannot apply a plan the host has not been given a chance to see -- i.e. that
-`onApply` is unreachable without a render. The current suite covers "does not
-apply on render" and "cannot apply twice", which is adjacent but not that.
+## API essentials
 
-## Publishing
+- **Components:** `TeachersAidChat` (the whole surface: plan review,
+  transcript, composer), `PlanReview`, `ChatTranscript`, `MessageComposer`.
+- **Controlled and transport-agnostic:** data and callbacks in, no router or
+  HTTP client inside. `TeachersAidChat` takes `agentName`, `history`, `plan`,
+  `busy`, `pending`, `configured`, `banner`, and `onSend(message, files,
+  reset)`, `onApply`, `onDiscard`, `onReset`.
+- **Types:** `ChangePlan`, `ChangeOperation`, `ChatEntry` mirror what the PHP
+  package serialises, as plain JSON.
 
-Pure OIDC via Trusted Publishing — no tokens. `publish.yml` fires on `v*.*.*`
-with `permissions: id-token: write`. **npm pinned to `11.18.0`**: OIDC needs
-11.5+, the runner ships 10.x, and `npm@latest` (12.x) broke `--provenance`.
+## Traps
 
-Note the repo/package split when configuring anything registry-side: the repo is
-`teachers-aid-ui` and so is the package, but its sibling `fancy-passkeys-js`
-publishes `@particle-academy/fancy-passkeys` — that mismatch has cost a failed
-publish twice in this org.
+- **`PlanReview` is the approval step. Never auto-apply a plan** or skip the
+  review. A plan is applied whole or not at all; there is no per-operation
+  reject.
+- **Authorization lives on the route that applies the plan.** The backend's
+  `PlanApplier` does not consult `laravel-courses`' `AuthorizesCourseAdmin`, so
+  put the apply route behind admin middleware.
+- **The transcript renders each entry's `display`, falling back to `content`.**
+  `content` is what the model was sent, with extracted file text folded in, so
+  a host on another backend should fill `display` or the teacher sees the whole
+  handbook pasted back.
+- **`busy` and `disabled` are separate on `MessageComposer`.** The box is also
+  disabled when no model is configured; wiring the spinner to `disabled` leaves
+  it spinning forever.
+- **Agent replies render sanitised** (through `ContentRenderer`), because the
+  reply is model output.

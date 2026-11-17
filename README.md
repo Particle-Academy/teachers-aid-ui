@@ -6,13 +6,20 @@ Teachers Aid Chat UX — an authoring chat with file drop and a **propose-then-a
 
 The React half of [`particle-academy/teachers-aid`](https://github.com/Particle-Academy/teachers-aid). Every component is **controlled and transport-agnostic**: it takes data and callbacks and imports no router or HTTP client, so the same surface sits on Inertia, a `fetch` call or a websocket.
 
+<!-- fancy-agents-note:start -->
+> **For agents.** This package is listed on the Fancy MCP catalog server at
+> `https://ui.particle.academy/mcp` (streamable HTTP, no API key; MCP id `fancy-ui`),
+> with install commands and docs, alongside the rest of the kit. How an agent
+> installs and uses this package is in [AGENTS.md](https://github.com/Particle-Academy/teachers-aid-ui/blob/main/AGENTS.md).
+<!-- fancy-agents-note:end -->
+
 ## Install
 
 ```sh
 npm install @particle-academy/teachers-aid-ui
 ```
 
-Peer deps: `react` 18/19 and `@particle-academy/react-fancy` v4+.
+Peer deps: `react` 19 and `@particle-academy/react-fancy` v4+.
 
 Tailwind must be told to scan the package, or it emits none of the classes:
 
@@ -70,14 +77,6 @@ It is the closer fit on paper — slash commands, mentions, a token meter, drop-
 ## Types
 
 `ChangePlan`, `ChangeOperation`, `ChatEntry` mirror what the PHP package serialises, but nothing here imports it — these components are a view over plain JSON, so a host on any backend can feed them.
-
-## Develop
-
-```sh
-npm install
-npm run build     # tsup -> dist (esm + cjs + d.ts)
-npm run lint      # tsc --noEmit
-```
 
 ## License
 
